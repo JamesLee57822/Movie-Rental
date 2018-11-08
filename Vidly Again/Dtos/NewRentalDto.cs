@@ -9,6 +9,5 @@ namespace Vidly_Again.Dtos
     {
         public int CustomerId { get; set; }
         public List<int> MovieIds { get; set; }
-        public int TestId { get; set; }
     }
 }
