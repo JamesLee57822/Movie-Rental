@@ -8,14 +8,67 @@
 <form>
     <div class="form-group">
         <label>Customer</label>
-        <input type="text" value="" class="form-control" />
+        <input id="customer" type="text" value="" class="form-control" />
     </div>
 
     <div class="form-group">
         <label>Movie</label>
-        <input type="text" value="" class="form-control" />
+        <input id="movie" type="text" value="" class="form-control" />
     </div>
+
+    <ul id="movies" class="list-group"></ul>
 
     <button class="btn btn-primary">Submit</button>
 </form>
+
+@section scripts{
+    <script>
+        var vm = {
+            movieIds = []
+        }; //want to store movies so we can send it to the server later
+
+        var customers = new Bloodhound({ //suggestion engine for typeahead
+            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),//tokenize this using whitespace
+            queryTokenizer: Bloodhound.tokenizers.whitespace,
+            remote: {
+                url: '/api/customers?query=%QUERY',//%QUERY is wildcard. What user types in textbox
+                wildcard: '%QUERY'          //will be placed here in runtime
+            }
+        });
+        $('#customer').typeahead({
+            minLength: 3, //typeahead will query servers when user types a minimum of 3 characters
+            highlight: true //characters in search that match our query will be highlighted
+        }, {
+                name: 'customers',
+                display: 'name', //specifies what property of customers we display in suggest list
+                source: customers
+            }).on("typeahead:select", function (e, customer) {
+                vm.customerId = customer.id;
+            });
+
+        var movies = new Bloodhound({
+            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+            queryTokenizer: Bloodhound.tokenizers.whitespace,
+            remote: {
+                url: '/api/movies?query=%QUERY',
+                wildcard: '%QUERY'         
+            }
+        });
+        $('#movie').typeahead({
+            minLength: 3, 
+            highlight: true 
+        }, {
+                name: 'movies',
+                display: 'name', 
+                source: movies
+            }).on("typeahead:select", function (e, movie) {
+                $("#movies").append("<li>" + movie.name + "</li>");//this directly manipulates the DOM
+                //in more complex situations this could become a code smell. We use data-binding like
+                //Knockout, Angular or React
+                $("#movie").typeahead("val", "");//can't use val to change value because we're using typeahead plugin
+                vm.movieIds.push(movie.id);
+            });
+
+    </script>
+}
 
