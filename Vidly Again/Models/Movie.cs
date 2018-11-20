@@ -23,7 +23,6 @@ namespace Vidly_Again.Models
         [Display(Name = "Number in Stock")]
         public byte NumberInStock { get; set; }
 
-        [Display(Name = "Number Available")]
         public byte NumberAvailable { get; set; }
 
     }
